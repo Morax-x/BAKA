@@ -1,0 +1,63 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1280"
+             d:DesignHeight="640"
+             x:Class="BugalterProject.pagini.components.HistoryPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="14,0,14,14" Spacing="14">
+            <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Istoricul cheltuielilor" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Aici sunt comparate cheltuielile din luna aceasta cu cele din luna trecuta."
+                               FontSize="14"
+                               Foreground="#CFCFCF"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="1.35*,.75*" ColumnSpacing="14">
+                <StackPanel Spacing="14">
+                    <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Luna aceasta" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="Mancare - 480 MDL" Foreground="White"/>
+                            <TextBlock Text="Transport - 210 MDL" Foreground="White"/>
+                            <TextBlock Text="Servicii comunale - 820 MDL" Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Luna trecuta" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Text="Mancare - 430 MDL" Foreground="White"/>
+                            <TextBlock Text="Transport - 190 MDL" Foreground="White"/>
+                            <TextBlock Text="Servicii comunale - 760 MDL" Foreground="White"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                        <StackPanel Spacing="12">
+                            <TextBlock Text="Export in Excel" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <StackPanel Orientation="Horizontal" Spacing="14">
+                                <Button Content="Continue" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
+                                <CheckBox Content="Confirm exportul" Foreground="White"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+
+                <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Compararea" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Luna aceasta: 7 420 MDL" Foreground="White"/>
+                        <TextBlock Text="Luna trecuta: 6 640 MDL" Foreground="White"/>
+                        <TextBlock Text="Diferenta dintre luni: +780 MDL" FontWeight="Bold" Foreground="White"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

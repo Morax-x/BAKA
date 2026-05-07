@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:components="using:BugalterProject.pagini.components"
+        mc:Ignorable="d"
+        d:DesignWidth="1280"
+        d:DesignHeight="820"
+        Width="1280"
+        Height="820"
+        MinWidth="1080"
+        MinHeight="720"
+        Background="#1E1E1E"
+        x:Class="BugalterProject.MainWindow"
+        Title="Bani Asistent si Kontrol Activetati ( BAKA )">
+
+    <Grid RowDefinitions="Auto,*,Auto" Background="#1E1E1E">
+        <components:Navbar x:Name="TopNavbar" Grid.Row="0"/>
+        <ContentControl x:Name="MainContent" Grid.Row="1"/>
+
+        <Border Grid.Row="2"
+                Margin="14,0,14,14"
+                Padding="12"
+                Background="#2A2A2A"
+                BorderBrush="#505050"
+                BorderThickness="1"
+                CornerRadius="8">
+            <TextBlock HorizontalAlignment="Center"
+                       Text="Informatii despre proprietarul site-ului si anul curent (ex: © 2026 BAKA)."
+                       FontSize="14"
+                       Foreground="#F0F0F0"/>
+        </Border>
+    </Grid>
+</Window>

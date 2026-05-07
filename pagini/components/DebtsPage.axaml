@@ -1,0 +1,53 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1280"
+             d:DesignHeight="640"
+             x:Class="BugalterProject.pagini.components.DebtsPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="14,0,14,14" Spacing="14">
+            <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Datoriile si responsabilitatile" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Aici sunt afisate datoriile personale si sumele care trebuie recuperate."
+                               FontSize="14"
+                               Foreground="#CFCFCF"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Sunt dator eu" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <Button Grid.Column="1" Content="Adauga datorie" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
+                        </Grid>
+                        <TextBlock Text="Victoriabank - 1 350 MDL" Foreground="White"/>
+                        <TextBlock Text="Energocom - 820 MDL" Foreground="White"/>
+                        <TextBlock Text="Andrei - 600 MDL" Foreground="White"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel Spacing="12">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="Sunt datori mie" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                            <Button Grid.Column="1" Content="Adauga datorie" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
+                        </Grid>
+                        <TextBlock Text="Sergiu - 900 MDL" Foreground="White"/>
+                        <Border Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12" Margin="0,12,0,0">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Sinteza" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock Text="Total datorii personale: 4 980 MDL" Foreground="White"/>
+                                <TextBlock Text="Total sume de recuperat: 900 MDL" Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
