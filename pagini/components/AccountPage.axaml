@@ -13,7 +13,7 @@
                     <TextBlock Text="Contul utilizatorului" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" Foreground="White"/>
                     <StackPanel Grid.Column="1" Spacing="10" HorizontalAlignment="Right">
                         <Button Content="Account" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
-                        <Button Content="Dezlogare" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
+                        <Button Content="Dezlogare" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="Logout"/>
                     </StackPanel>
                 </Grid>
             </Border>

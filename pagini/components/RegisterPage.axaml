@@ -70,7 +70,8 @@
                                     HorizontalAlignment="Right"
                                     Padding="22,10"
                                     Background="#3A3A3A"
-                                    Foreground="White"/>
+                                    Foreground="White"
+                                    Click="ContinueToApp"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

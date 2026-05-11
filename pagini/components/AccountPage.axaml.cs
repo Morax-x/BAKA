@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace BugalterProject.pagini.components
 {
@@ -7,6 +8,11 @@ namespace BugalterProject.pagini.components
         public AccountPage()
         {
             InitializeComponent();
+        }
+
+        private void Logout(object? sender, RoutedEventArgs e)
+        {
+            MainWindow.Instance?.ShowRegisterPage();
         }
     }
 }

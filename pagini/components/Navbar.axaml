@@ -24,10 +24,10 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="10">
-                <Button Content="Main" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
-                <Button Content="Datorii" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
-                <Button Content="Servicii com." Padding="18,10" Background="#3A3A3A" Foreground="White"/>
-                <Button Content="Istoricul" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
+                <Button Content="Main" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDashboard"/>
+                <Button Content="Datorii" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDebts"/>
+                <Button Content="Servicii com." Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenUtilities"/>
+                <Button Content="Istoricul" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenHistory"/>
             </StackPanel>
 
             <Button Grid.Column="2"
@@ -35,7 +35,8 @@
                     Padding="18,10"
                     Background="#3A3A3A"
                     Foreground="White"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Center"
+                    Click="OpenAccount"/>
         </Grid>
     </Border>
 </UserControl>
