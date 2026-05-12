@@ -12,8 +12,8 @@
                 <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
                     <TextBlock Text="Contul utilizatorului" FontSize="28" FontWeight="Bold" VerticalAlignment="Center" Foreground="White"/>
                     <StackPanel Grid.Column="1" Spacing="10" HorizontalAlignment="Right">
-                        <Button Content="Account" Padding="18,10" Background="#3A3A3A" Foreground="White"/>
                         <Button Content="Dezlogare" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="Logout"/>
+                        <Button Content="Stergere cont" Padding="18,10" Background="#5A2E2E" Foreground="White" Click="DeleteAccount"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -35,6 +35,9 @@
 
                     <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                         <StackPanel Spacing="12">
+                            <TextBlock x:Name="UserNameText" Text="Utilizator curent" FontSize="18" Foreground="White"/>
+                            <TextBlock x:Name="UserEmailText" Text="Email" FontSize="18" Foreground="White"/>
+                            <TextBlock x:Name="UserRoleText" Text="Rol: user" FontSize="18" Foreground="White"/>
                             <TextBlock Text="Data logarii in sistem: 2026/05/07" FontSize="18" Foreground="White"/>
                             <TextBlock Text="Sunteti cu noi de acum 2 ore si 18 minute." FontSize="18" Foreground="White"/>
                         </StackPanel>
@@ -57,6 +60,9 @@
                                     <ComboBoxItem Content="English"/>
                                 </ComboBox>
                             </Grid>
+
+                            <CheckBox x:Name="DeleteConfirmCheck" Content="Confirm stergerea contului" Foreground="White"/>
+                            <TextBlock x:Name="StatusText" Foreground="#CFCFCF" TextWrapping="Wrap"/>
                         </StackPanel>
                     </Border>
                 </StackPanel>

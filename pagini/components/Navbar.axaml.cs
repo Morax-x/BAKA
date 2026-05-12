@@ -1,5 +1,6 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using BugalterProject.Data;
 using BugalterProject.pagini;
 
 namespace BugalterProject.pagini.components
@@ -9,6 +10,11 @@ namespace BugalterProject.pagini.components
         public Navbar()
         {
             InitializeComponent();
+        }
+
+        public void RefreshForUser(AppUser? user)
+        {
+            AdminButton.IsVisible = user?.IsAdmin == true;
         }
 
         private void OpenDashboard(object? sender, RoutedEventArgs e)
@@ -34,6 +40,14 @@ namespace BugalterProject.pagini.components
         private void OpenAccount(object? sender, RoutedEventArgs e)
         {
             MainWindow.Instance?.ChangePage(new AccountPage());
+        }
+
+        private void OpenAdmin(object? sender, RoutedEventArgs e)
+        {
+            if (AppSession.CurrentUser?.IsAdmin == true)
+            {
+                MainWindow.Instance?.ChangePage(new AdminPage());
+            }
         }
     }
 }

@@ -1,0 +1,42 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="1280"
+             d:DesignHeight="640"
+             x:Class="BugalterProject.pagini.components.AdminPage">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="14,0,14,14" Spacing="14">
+            <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                <StackPanel Spacing="6">
+                    <TextBlock Text="Panoul administratorului" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Aceasta sectiune este disponibila doar pentru utilizatorii cu rol de administrator."
+                               FontSize="14"
+                               Foreground="#CFCFCF"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Gestionare utilizatori" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Aici pot fi adaugate functii pentru modificarea rolurilor si verificarea conturilor."
+                                   Foreground="White"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                    <StackPanel Spacing="12">
+                        <TextBlock Text="Roluri disponibile" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="user - drepturi standard" Foreground="White"/>
+                        <TextBlock Text="admin - drepturi extinse" Foreground="White"/>
+                        <TextBlock Text="Rolul se citeste din baza de date la autentificare." Foreground="White"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
