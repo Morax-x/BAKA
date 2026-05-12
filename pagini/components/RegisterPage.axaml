@@ -31,17 +31,22 @@
                         <StackPanel Spacing="16">
                             <Grid ColumnDefinitions="1.4*,1*" ColumnSpacing="14">
                                 <TextBlock Text="Introdu numele" VerticalAlignment="Center" FontSize="17" Foreground="White"/>
-                                <TextBox Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
+                                <TextBox x:Name="FirstNameBox" Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="1.4*,1*" ColumnSpacing="14">
                                 <TextBlock Text="Introdu prenumele" VerticalAlignment="Center" FontSize="17" Foreground="White"/>
-                                <TextBox Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
+                                <TextBox x:Name="LastNameBox" Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="1.4*,1*" ColumnSpacing="14">
                                 <TextBlock Text="Introdu email" VerticalAlignment="Center" FontSize="17" Foreground="White"/>
-                                <TextBox Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
+                                <TextBox x:Name="EmailBox" Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="1.4*,1*" ColumnSpacing="14">
+                                <TextBlock Text="Introdu parola" VerticalAlignment="Center" FontSize="17" Foreground="White"/>
+                                <TextBox x:Name="PasswordBox" Grid.Column="1" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="1.2*,.6*,.7*" ColumnSpacing="14">
@@ -49,7 +54,7 @@
                                 <Border Grid.Column="1" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12,10">
                                     <TextBlock Text="Captcha" HorizontalAlignment="Center" Foreground="White"/>
                                 </Border>
-                                <TextBox Grid.Column="2" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
+                                <TextBox x:Name="CaptchaBox" Grid.Column="2" PlaceholderText="Input" Padding="12" Background="#3A3A3A" Foreground="White"/>
                             </Grid>
 
                             <Grid ColumnDefinitions="1.3*,Auto" ColumnSpacing="20" Margin="0,10,0,0">
@@ -61,10 +66,15 @@
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-                                    <CheckBox/>
+                                    <CheckBox x:Name="PolicyCheck"/>
                                     <TextBlock Text="Confirmare" Foreground="White"/>
                                 </StackPanel>
                             </Grid>
+
+                            <TextBlock x:Name="StatusText"
+                                       Text="Completeaza campurile si apasa Continue."
+                                       Foreground="#CFCFCF"
+                                       TextWrapping="Wrap"/>
 
                             <Button Content="Continue"
                                     HorizontalAlignment="Right"
