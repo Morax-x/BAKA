@@ -35,7 +35,8 @@
                                  BorderBrush="#505050"
                                  BorderThickness="1"
                                  Foreground="White"
-                                 Height="330">
+                                 Height="330"
+                                 SelectionChanged="UsersList_SelectionChanged">
                             <ListBox.ItemTemplate>
                                 <DataTemplate x:DataType="data:AppUser">
                                     <Border Margin="0,0,0,8"
@@ -59,10 +60,49 @@
 
                 <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                     <StackPanel Spacing="12">
+                        <TextBlock Text="Actiuni administrator" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Administratorul poate schimba rolul, sterge utilizatori si urmari statisticile generale ale sistemului."
+                                   Foreground="White"
+                                   TextWrapping="Wrap"/>
+
+                        <Border Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Utilizator selectat" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock x:Name="SelectedUserText"
+                                           Text="Niciun utilizator selectat"
+                                           Foreground="#CFCFCF"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Button Content="Seteaza user" Click="SetUserRole" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
+                            <Button Content="Seteaza admin" Click="SetAdminRole" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
+                        </StackPanel>
+
+                        <Button Content="Sterge utilizator"
+                                Click="DeleteSelectedUser"
+                                Padding="16,10"
+                                Background="#7A2E2E"
+                                Foreground="White"/>
+
+                        <TextBlock x:Name="StatusText"
+                                   Foreground="#CFCFCF"
+                                   TextWrapping="Wrap"/>
+
+                        <Border Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Statistici generale" FontWeight="Bold" Foreground="White"/>
+                                <TextBlock x:Name="AdminStatsText"
+                                           Text="Se incarca statisticile..."
+                                           Foreground="#CFCFCF"
+                                           TextWrapping="Wrap"/>
+                            </StackPanel>
+                        </Border>
+
                         <TextBlock Text="Roluri disponibile" FontSize="22" FontWeight="Bold" Foreground="White"/>
                         <TextBlock Text="user - drepturi standard" Foreground="White"/>
                         <TextBlock Text="admin - drepturi extinse" Foreground="White"/>
-                        <TextBlock Text="" Foreground="White"/>
                     </StackPanel>
                 </Border>
             </Grid>

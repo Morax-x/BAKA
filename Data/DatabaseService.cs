@@ -210,6 +210,123 @@ public static class DatabaseService
         return users;
     }
 
+    public static async Task<OperationResult> UpdateUserRoleAsync(int userId, string role)
+    {
+        if (userId <= 0)
+        {
+            return new OperationResult(false, "Utilizator invalid.");
+        }
+
+        if (!string.Equals(role, "user", StringComparison.OrdinalIgnoreCase) &&
+            !string.Equals(role, "admin", StringComparison.OrdinalIgnoreCase))
+        {
+            return new OperationResult(false, "Rol invalid.");
+        }
+
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var command = new MySqlCommand(
+                "UPDATE users SET role = @role WHERE user_id = @user_id;",
+                connection);
+            command.Parameters.AddWithValue("@role", role.ToLowerInvariant());
+            command.Parameters.AddWithValue("@user_id", userId);
+
+            var affectedRows = await command.ExecuteNonQueryAsync();
+            if (affectedRows == 0)
+            {
+                return new OperationResult(false, "Utilizatorul nu a fost gasit.");
+            }
+
+            return new OperationResult(true, "Rolul utilizatorului a fost actualizat.");
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, $"Eroare la actualizarea rolului: {ex.Message}");
+        }
+    }
+
+    public static async Task<OperationResult> DeleteUserByIdAsync(int userId)
+    {
+        if (userId <= 0)
+        {
+            return new OperationResult(false, "Utilizator invalid.");
+        }
+
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                var deleteCommands = new[]
+                {
+                    "DELETE FROM expenses WHERE user_id = @user_id;",
+                    "DELETE FROM debts WHERE user_id = @user_id;",
+                    "DELETE FROM utilities WHERE user_id = @user_id;",
+                    "DELETE FROM users WHERE user_id = @user_id;"
+                };
+
+                foreach (var commandText in deleteCommands)
+                {
+                    await using var command = new MySqlCommand(commandText, connection, transaction);
+                    command.Parameters.AddWithValue("@user_id", userId);
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+                return new OperationResult(true, "Utilizatorul a fost sters cu succes.");
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, $"Eroare la stergerea utilizatorului: {ex.Message}");
+        }
+    }
+
+    public static async Task<AdminStats> GetAdminStatsAsync()
+    {
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            async Task<int> CountAsync(string sql)
+            {
+                await using var command = new MySqlCommand(sql, connection);
+                return Convert.ToInt32(await command.ExecuteScalarAsync());
+            }
+
+            var totalUsers = await CountAsync("SELECT COUNT(*) FROM users;");
+            var adminUsers = await CountAsync("SELECT COUNT(*) FROM users WHERE LOWER(role) = 'admin';");
+            var totalExpenses = await CountAsync("SELECT COUNT(*) FROM expenses;");
+            var totalDebts = await CountAsync("SELECT COUNT(*) FROM debts;");
+            var totalUtilities = await CountAsync("SELECT COUNT(*) FROM utilities;");
+
+            return new AdminStats(totalUsers, adminUsers, totalExpenses, totalDebts, totalUtilities);
+        }
+        catch
+        {
+            return new AdminStats(0, 0, 0, 0, 0);
+        }
+    }
+
     private static AuthResult ValidateRegistration(
         string firstName,
         string lastName,
