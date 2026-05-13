@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MySqlConnector;
@@ -173,6 +174,42 @@ public static class DatabaseService
         }
     }
 
+    public static async Task<List<AppUser>> GetAllUsersAsync()
+    {
+        var users = new List<AppUser>();
+
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var command = new MySqlCommand(
+                @"SELECT user_id, first_name, last_name, email, role
+                  FROM users
+                  ORDER BY user_id;",
+                connection);
+
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                users.Add(new AppUser(
+                    reader.GetInt32("user_id"),
+                    reader.GetString("first_name"),
+                    reader.GetString("last_name"),
+                    reader.GetString("email"),
+                    reader.GetString("role")));
+            }
+        }
+        catch
+        {
+            return users;
+        }
+
+        return users;
+    }
+
     private static AuthResult ValidateRegistration(
         string firstName,
         string lastName,
@@ -288,18 +325,6 @@ public static class DatabaseService
                       ('Altele');",
                     databaseConnection);
                 await seedCategories.ExecuteNonQueryAsync();
-
-                await using var seedAdmin = new MySqlCommand(
-                    @"INSERT IGNORE INTO users (first_name, last_name, email, password, role)
-                      VALUES ('Admin', 'BAKA', 'admin@baka.md', 'admin123', 'admin');",
-                    databaseConnection);
-                await seedAdmin.ExecuteNonQueryAsync();
-
-                await using var seedUser = new MySqlCommand(
-                    @"INSERT IGNORE INTO users (first_name, last_name, email, password, role)
-                      VALUES ('Utilizator', 'BAKA', 'user@baka.md', 'user123', 'user');",
-                    databaseConnection);
-                await seedUser.ExecuteNonQueryAsync();
             }
 
             _schemaReady = true;

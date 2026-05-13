@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:data="using:BugalterProject.Data"
              mc:Ignorable="d"
              d:DesignWidth="1280"
              d:DesignHeight="640"
@@ -11,7 +12,7 @@
             <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                 <StackPanel Spacing="6">
                     <TextBlock Text="Panoul administratorului" FontSize="28" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Aceasta sectiune este disponibila doar pentru utilizatorii cu rol de administrator."
+                    <TextBlock Text=""
                                FontSize="14"
                                Foreground="#CFCFCF"
                                TextWrapping="Wrap"/>
@@ -22,9 +23,37 @@
                 <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Gestionare utilizatori" FontSize="22" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Aici pot fi adaugate functii pentru modificarea rolurilor si verificarea conturilor."
+                        <TextBlock Text="Aici este afisata lista tuturor utilizatorilor inregistrati in sistem."
                                    Foreground="White"
                                    TextWrapping="Wrap"/>
+                        <TextBlock x:Name="UsersCountText"
+                                   Text="Utilizatori gasiti: 0"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                        <ListBox x:Name="UsersList"
+                                 Background="#252525"
+                                 BorderBrush="#505050"
+                                 BorderThickness="1"
+                                 Foreground="White"
+                                 Height="330">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate x:DataType="data:AppUser">
+                                    <Border Margin="0,0,0,8"
+                                            Padding="12"
+                                            Background="#3A3A3A"
+                                            BorderBrush="#505050"
+                                            BorderThickness="1"
+                                            CornerRadius="6">
+                                        <StackPanel Spacing="4">
+                                            <TextBlock Text="{Binding FirstName}" FontWeight="Bold" Foreground="White"/>
+                                            <TextBlock Text="{Binding LastName}" Foreground="White"/>
+                                            <TextBlock Text="{Binding Email}" Foreground="#CFCFCF"/>
+                                            <TextBlock Text="{Binding Role}" Foreground="#7DB4FF"/>
+                                        </StackPanel>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </StackPanel>
                 </Border>
 
@@ -33,7 +62,7 @@
                         <TextBlock Text="Roluri disponibile" FontSize="22" FontWeight="Bold" Foreground="White"/>
                         <TextBlock Text="user - drepturi standard" Foreground="White"/>
                         <TextBlock Text="admin - drepturi extinse" Foreground="White"/>
-                        <TextBlock Text="Rolul se citeste din baza de date la autentificare." Foreground="White"/>
+                        <TextBlock Text="" Foreground="White"/>
                     </StackPanel>
                 </Border>
             </Grid>
