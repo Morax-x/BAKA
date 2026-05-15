@@ -22,6 +22,11 @@ namespace BugalterProject.pagini.components
             MainWindow.Instance?.ChangePage(new Dashboard());
         }
 
+        private void OpenExpenses(object? sender, RoutedEventArgs e)
+        {
+            MainWindow.Instance?.ChangePage(new ExpensesPage());
+        }
+
         private void OpenDebts(object? sender, RoutedEventArgs e)
         {
             MainWindow.Instance?.ChangePage(new DebtsPage());

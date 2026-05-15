@@ -25,6 +25,7 @@
                         VerticalAlignment="Center"
                         Spacing="10">
                 <Button Content="Main" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDashboard"/>
+                <Button Content="Cheltuieli" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenExpenses"/>
                 <Button Content="Datorii" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDebts"/>
                 <Button Content="Servicii com." Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenUtilities"/>
                 <Button Content="Istoricul" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenHistory"/>
