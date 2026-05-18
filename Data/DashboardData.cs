@@ -4,7 +4,8 @@ namespace BugalterProject.Data;
 
 public sealed record DashboardData(
     decimal CurrentBudget,
-    decimal TotalDebts,
+    decimal TotalPayableDebts,
+    decimal TotalReceivableDebts,
     decimal CurrentMonthExpenses,
     IReadOnlyList<DashboardObligation> UpcomingObligations,
     IReadOnlyList<DashboardCategoryTotal> CategoryTotals);

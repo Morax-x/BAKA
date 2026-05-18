@@ -11,14 +11,14 @@
             <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                 <StackPanel Spacing="6">
                     <TextBlock Text="Panoul principal" FontSize="28" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="Pagina principala contine bugetul curent, datoriile totale si cheltuielile lunare."
+                    <TextBlock Text="Pagina principala contine bugetul curent, datoriile de achitat, sumele de recuperat si cheltuielile lunare."
                                FontSize="14"
                                Foreground="#CFCFCF"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
 
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="14">
+            <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
                 <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel Spacing="8">
                         <TextBlock Text="Buget curent" FontSize="15" Foreground="White"/>
@@ -39,17 +39,25 @@
 
                 <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel Spacing="6">
-                        <TextBlock Text="Datorii totale" FontSize="15" Foreground="White"/>
-                        <TextBlock x:Name="DebtsValueText" Text="0.00 MDL" FontSize="28" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Sunt calculate doar din datoriile introduse in aplicatie." Foreground="#CFCFCF" TextWrapping="Wrap"/>
+                        <TextBlock Text="De achitat" FontSize="15" Foreground="White"/>
+                        <TextBlock x:Name="PayableDebtsValueText" Text="0.00 MDL" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Reprezinta totalul datoriilor active si al sumelor pe care trebuie sa le platesti." Foreground="#CFCFCF" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="2" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="18">
                     <StackPanel Spacing="6">
+                        <TextBlock Text="De recuperat" FontSize="15" Foreground="White"/>
+                        <TextBlock x:Name="ReceivableDebtsValueText" Text="0.00 MDL" FontSize="28" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Arata sumele active pe care alte persoane trebuie sa ti le intoarca." Foreground="#CFCFCF" TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="3" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="18">
+                    <StackPanel Spacing="6">
                         <TextBlock Text="Cheltuieli pe luna" FontSize="15" Foreground="White"/>
                         <TextBlock x:Name="MonthlyExpensesText" Text="0.00 MDL" FontSize="28" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text="Sunt calculate automat pentru luna curenta din cheltuielile introduse." Foreground="#CFCFCF" TextWrapping="Wrap"/>
+                        <TextBlock Text="Sunt calculate automat pentru luna curenta din cheltuieli si servicii comunale." Foreground="#CFCFCF" TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -57,7 +65,7 @@
             <Grid ColumnDefinitions="1.25*,1*" ColumnSpacing="14">
                 <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                     <StackPanel Spacing="12">
-                        <TextBlock Text="Datorii apropiate" FontSize="22" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text="Obligatii si recuperari apropiate" FontSize="22" FontWeight="Bold" Foreground="White"/>
 
                         <Border x:Name="ObligationCard1" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="14">
                             <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
@@ -80,32 +88,42 @@
                                 <TextBlock x:Name="ObligationDate2" Grid.Column="2" Text="-" VerticalAlignment="Center" Foreground="White"/>
                             </Grid>
                         </Border>
+
+                        <Border x:Name="ObligationCard3" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="14">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                <StackPanel>
+                                    <TextBlock x:Name="ObligationTitle3" Text="Nu exista date" FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock x:Name="ObligationSubtitle3" Text="Introdu obligatii pentru a le vedea aici" Foreground="#CFCFCF"/>
+                                </StackPanel>
+                                <TextBlock x:Name="ObligationAmount3" Grid.Column="1" Text="0.00 MDL" VerticalAlignment="Center" Foreground="White"/>
+                                <TextBlock x:Name="ObligationDate3" Grid.Column="2" Text="-" VerticalAlignment="Center" Foreground="White"/>
+                            </Grid>
+                        </Border>
+
+                        <Border x:Name="ObligationCard4" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="14">
+                            <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="12">
+                                <StackPanel>
+                                    <TextBlock x:Name="ObligationTitle4" Text="Nu exista date" FontWeight="SemiBold" Foreground="White"/>
+                                    <TextBlock x:Name="ObligationSubtitle4" Text="Introdu obligatii pentru a le vedea aici" Foreground="#CFCFCF"/>
+                                </StackPanel>
+                                <TextBlock x:Name="ObligationAmount4" Grid.Column="1" Text="0.00 MDL" VerticalAlignment="Center" Foreground="White"/>
+                                <TextBlock x:Name="ObligationDate4" Grid.Column="2" Text="-" VerticalAlignment="Center" Foreground="White"/>
+                            </Grid>
+                        </Border>
                     </StackPanel>
                 </Border>
 
                 <Border Grid.Column="1" Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Categorii de cheltuieli" FontSize="22" FontWeight="Bold" Foreground="White"/>
-
-                        <Border x:Name="CategoryCard1" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock x:Name="CategoryName1" Text="Nu exista date" Foreground="White"/>
-                                <TextBlock x:Name="CategoryAmount1" Grid.Column="1" Text="0.00 MDL" Foreground="White"/>
-                            </Grid>
-                        </Border>
-
-                        <Border x:Name="CategoryCard2" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock x:Name="CategoryName2" Text="Nu exista date" Foreground="White"/>
-                                <TextBlock x:Name="CategoryAmount2" Grid.Column="1" Text="0.00 MDL" Foreground="White"/>
-                            </Grid>
-                        </Border>
-
-                        <Border x:Name="CategoryCard3" Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <TextBlock x:Name="CategoryName3" Text="Nu exista date" Foreground="White"/>
-                                <TextBlock x:Name="CategoryAmount3" Grid.Column="1" Text="0.00 MDL" Foreground="White"/>
-                            </Grid>
+                        <TextBlock Text="Aici este afisata suma totala cheltuita pe fiecare categorie in luna curenta, inclusiv serviciile comunale."
+                                   Foreground="#CFCFCF"
+                                   TextWrapping="Wrap"/>
+                        <Border Background="#3A3A3A" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="14">
+                            <TextBlock x:Name="CategoriesSummaryText"
+                                       Text="Nu exista date"
+                                       Foreground="White"
+                                       TextWrapping="Wrap"/>
                         </Border>
                     </StackPanel>
                 </Border>

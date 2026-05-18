@@ -19,11 +19,27 @@
                 </StackPanel>
             </Border>
 
-            <Grid ColumnDefinitions="1.3*,1*" ColumnSpacing="14">
-                <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+            <Grid ColumnDefinitions="1*,1.3*" ColumnSpacing="14">
+                <Border Grid.Column="1"
+                        Background="#2A2A2A"
+                        BorderBrush="#505050"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Lista platilor comunale" FontSize="22" FontWeight="Bold" Foreground="White"/>
                         <TextBlock x:Name="UtilitiesCountText" Text="Plati gasite: 0" FontWeight="Bold" Foreground="White"/>
+
+                        <Border Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Afisare" FontWeight="Bold" Foreground="White"/>
+                                <ComboBox x:Name="UtilityViewCombo"
+                                          Background="#3A3A3A"
+                                          Foreground="White"
+                                          BorderBrush="#505050"
+                                          SelectionChanged="UtilityViewCombo_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
 
                         <ListBox x:Name="UtilitiesList"
                                  Background="#252525"
@@ -55,7 +71,12 @@
                     </StackPanel>
                 </Border>
 
-                <Border Background="#2A2A2A" BorderBrush="#505050" BorderThickness="1" CornerRadius="8" Padding="20">
+                <Border Grid.Column="0"
+                        Background="#2A2A2A"
+                        BorderBrush="#505050"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Padding="20">
                     <StackPanel Spacing="12">
                         <TextBlock Text="Formular plata comunala" FontSize="22" FontWeight="Bold" Foreground="White"/>
 
@@ -75,8 +96,73 @@
 
                         <Border Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
                             <StackPanel Spacing="6">
-                                <TextBlock Text="Suma" FontWeight="Bold" Foreground="White"/>
-                                <TextBox x:Name="AmountBox" Background="#3A3A3A" Foreground="White" BorderBrush="#505050" PlaceholderText="Ex: 432.00"/>
+                                <TextBlock Text="Mod completare" FontWeight="Bold" Foreground="White"/>
+                                <ComboBox x:Name="EntryModeCombo"
+                                          Background="#3A3A3A"
+                                          Foreground="White"
+                                          BorderBrush="#505050"
+                                          SelectionChanged="EntryModeCombo_SelectionChanged"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border x:Name="AutomaticCalculationBorder" Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="10">
+                                <TextBlock Text="Calcul automat dupa contor" FontWeight="Bold" Foreground="White"/>
+
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
+                                    <StackPanel Grid.Column="0" Spacing="6">
+                                        <TextBlock Text="Contor precedent" FontWeight="Bold" Foreground="White"/>
+                                        <TextBox x:Name="PreviousReadingBox"
+                                                 Background="#3A3A3A"
+                                                 Foreground="White"
+                                                 BorderBrush="#505050"
+                                                 PlaceholderText="Ex: 1240"
+                                                 TextChanged="AutoCalculationValueChanged"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="1" Spacing="6">
+                                        <TextBlock Text="Contor curent" FontWeight="Bold" Foreground="White"/>
+                                        <TextBox x:Name="CurrentReadingBox"
+                                                 Background="#3A3A3A"
+                                                 Foreground="White"
+                                                 BorderBrush="#505050"
+                                                 PlaceholderText="Ex: 1285"
+                                                 TextChanged="AutoCalculationValueChanged"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <StackPanel Spacing="6">
+                                    <TextBlock Text="Tarif pe unitate" FontWeight="Bold" Foreground="White"/>
+                                    <TextBox x:Name="TariffBox"
+                                             Background="#3A3A3A"
+                                             Foreground="White"
+                                             BorderBrush="#505050"
+                                             PlaceholderText="Ex: 15.75"
+                                             TextChanged="AutoCalculationValueChanged"/>
+                                </StackPanel>
+
+                                <TextBlock x:Name="AutoCalculationText"
+                                           Foreground="#CFCFCF"
+                                           TextWrapping="Wrap"
+                                           Text="Introdu valorile contorului pentru a calcula suma."/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock x:Name="AmountLabelText" Text="Suma" FontWeight="Bold" Foreground="White"/>
+                                <TextBox x:Name="AmountBox"
+                                         Background="#3A3A3A"
+                                         Foreground="White"
+                                         BorderBrush="#505050"
+                                         PlaceholderText="Ex: 432.00"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border x:Name="PaymentAmountBorder" Background="#252525" BorderBrush="#505050" BorderThickness="1" CornerRadius="6" Padding="12">
+                            <StackPanel Spacing="6">
+                                <TextBlock Text="Suma achitata acum" FontWeight="Bold" Foreground="White"/>
+                                <TextBox x:Name="PaymentAmountBox" Background="#3A3A3A" Foreground="White" BorderBrush="#505050" PlaceholderText="Ex: 100.00"/>
                             </StackPanel>
                         </Border>
 
@@ -87,13 +173,34 @@
                             </StackPanel>
                         </Border>
 
-                        <StackPanel Orientation="Horizontal" Spacing="10">
-                            <Button Content="Adauga" Click="AddUtility" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
-                            <Button Content="Actualizeaza" Click="UpdateUtility" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
-                            <Button Content="Marcheaza achitata" Click="MarkUtilityPaid" Padding="16,10" Background="#355E3B" Foreground="White"/>
-                            <Button Content="Sterge" Click="DeleteUtility" Padding="16,10" Background="#7A2E2E" Foreground="White"/>
-                            <Button Content="Goleste" Click="ClearForm" Padding="16,10" Background="#3A3A3A" Foreground="White"/>
-                        </StackPanel>
+                        <WrapPanel>
+                            <Button Content="Salveaza"
+                                    Click="SaveUtility"
+                                    Padding="16,10"
+                                    Margin="0,0,10,10"
+                                    Background="#3A3A3A"
+                                    Foreground="White"/>
+                            <Button x:Name="ClearSelectionButton"
+                                    Content="Anuleaza selectia"
+                                    Click="ClearForm"
+                                    Padding="16,10"
+                                    Margin="0,0,10,10"
+                                    Background="#3A3A3A"
+                                    Foreground="White"/>
+                            <Button x:Name="ApplyPaymentButton"
+                                    Content="Aplica plata"
+                                    Click="ApplyUtilityPayment"
+                                    Padding="16,10"
+                                    Margin="0,0,10,10"
+                                    Background="#355E3B"
+                                    Foreground="White"/>
+                            <Button Content="Sterge"
+                                    Click="DeleteUtility"
+                                    Padding="16,10"
+                                    Margin="0,0,10,10"
+                                    Background="#7A2E2E"
+                                    Foreground="White"/>
+                        </WrapPanel>
 
                         <TextBlock x:Name="TotalText" Foreground="White" TextWrapping="Wrap"/>
                         <TextBlock x:Name="StatusText" Foreground="#CFCFCF" TextWrapping="Wrap"/>

@@ -430,6 +430,59 @@ public static class DatabaseService
         }
     }
 
+    public static async Task<OperationResult> ClearHistoryAsync(int? userId = null)
+    {
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                var commands = userId.HasValue
+                    ? new[]
+                    {
+                        "DELETE FROM expenses WHERE user_id = @user_id;",
+                        "DELETE FROM debts WHERE user_id = @user_id AND is_settled = 1;",
+                        "DELETE FROM utilities WHERE user_id = @user_id AND is_paid = 1;"
+                    }
+                    : new[]
+                    {
+                        "DELETE FROM expenses;",
+                        "DELETE FROM debts WHERE is_settled = 1;",
+                        "DELETE FROM utilities WHERE is_paid = 1;"
+                    };
+
+                foreach (var commandText in commands)
+                {
+                    await using var command = new MySqlCommand(commandText, connection, transaction);
+                    if (userId.HasValue)
+                    {
+                        command.Parameters.AddWithValue("@user_id", userId.Value);
+                    }
+
+                    await command.ExecuteNonQueryAsync();
+                }
+
+                await transaction.CommitAsync();
+                return new OperationResult(true, "Istoricul a fost golit cu succes.");
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, $"Eroare la golirea istoricului: {ex.Message}");
+        }
+    }
+
     public static async Task<List<DebtItem>> GetDebtsAsync(int? userId = null, bool includeSettled = false)
     {
         var debts = new List<DebtItem>();
@@ -448,6 +501,7 @@ public static class DatabaseService
                            d.person_name,
                            d.debt_type,
                            d.amount,
+                           d.original_amount,
                            d.due_date,
                            d.is_settled,
                            d.settled_date
@@ -462,6 +516,7 @@ public static class DatabaseService
                            d.person_name,
                            d.debt_type,
                            d.amount,
+                           d.original_amount,
                            d.due_date,
                            d.is_settled,
                            d.settled_date
@@ -487,6 +542,7 @@ public static class DatabaseService
                     reader.GetString("person_name"),
                     reader.GetString("debt_type"),
                     reader.GetDecimal("amount"),
+                    reader.GetDecimal("original_amount"),
                     reader.GetDateTime("due_date"),
                     reader.GetBoolean("is_settled"),
                     reader.IsDBNull(reader.GetOrdinal("settled_date")) ? null : reader.GetDateTime("settled_date")));
@@ -526,14 +582,15 @@ public static class DatabaseService
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(
-                @"INSERT INTO debts (user_id, person_name, debt_type, amount, due_date, is_settled, settled_date)
-                  VALUES (@user_id, @person_name, @debt_type, @amount, @due_date, 0, NULL);",
+                @"INSERT INTO debts (user_id, person_name, debt_type, amount, original_amount, due_date, is_settled, settled_date)
+                  VALUES (@user_id, @person_name, @debt_type, @amount, @original_amount, @due_date, 0, NULL);",
                 connection);
 
             command.Parameters.AddWithValue("@user_id", userId);
             command.Parameters.AddWithValue("@person_name", personName.Trim());
             command.Parameters.AddWithValue("@debt_type", debtType.ToLowerInvariant());
             command.Parameters.AddWithValue("@amount", amount);
+            command.Parameters.AddWithValue("@original_amount", amount);
             command.Parameters.AddWithValue("@due_date", dueDate.Date);
 
             await command.ExecuteNonQueryAsync();
@@ -575,6 +632,7 @@ public static class DatabaseService
                   SET person_name = @person_name,
                       debt_type = @debt_type,
                       amount = @amount,
+                      original_amount = @original_amount,
                       due_date = @due_date
                   WHERE debt_id = @debt_id;",
                 connection);
@@ -583,6 +641,7 @@ public static class DatabaseService
             command.Parameters.AddWithValue("@person_name", personName.Trim());
             command.Parameters.AddWithValue("@debt_type", debtType.ToLowerInvariant());
             command.Parameters.AddWithValue("@amount", amount);
+            command.Parameters.AddWithValue("@original_amount", amount);
             command.Parameters.AddWithValue("@due_date", dueDate.Date);
 
             var affectedRows = await command.ExecuteNonQueryAsync();
@@ -666,6 +725,86 @@ public static class DatabaseService
         catch (Exception ex)
         {
             return new OperationResult(false, $"Eroare la inchiderea datoriei: {ex.Message}");
+        }
+    }
+
+    public static async Task<OperationResult> ApplyDebtPaymentAsync(int debtId, decimal paymentAmount)
+    {
+        if (debtId <= 0 || paymentAmount <= 0)
+        {
+            return new OperationResult(false, "Suma pentru plata este invalida.");
+        }
+
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                await using var load = new MySqlCommand(
+                    @"SELECT amount, original_amount, is_settled
+                      FROM debts
+                      WHERE debt_id = @debt_id
+                      LIMIT 1;",
+                    connection,
+                    transaction);
+                load.Parameters.AddWithValue("@debt_id", debtId);
+
+                await using var reader = await load.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
+                {
+                    return new OperationResult(false, "Datoria nu a fost gasita.");
+                }
+
+                var currentAmount = reader.GetDecimal("amount");
+                var originalAmount = reader.GetDecimal("original_amount");
+                var isSettled = reader.GetBoolean("is_settled");
+                await reader.CloseAsync();
+
+                if (isSettled)
+                {
+                    return new OperationResult(false, "Datoria este deja stinsa.");
+                }
+
+                var remainingAmount = currentAmount - paymentAmount;
+                var shouldSettle = remainingAmount <= 0;
+                var amountToStore = shouldSettle ? 0m : remainingAmount;
+
+                await using var update = new MySqlCommand(
+                    @"UPDATE debts
+                      SET amount = @amount,
+                          original_amount = @original_amount,
+                          is_settled = @is_settled,
+                          settled_date = @settled_date
+                      WHERE debt_id = @debt_id;",
+                    connection,
+                    transaction);
+                update.Parameters.AddWithValue("@amount", amountToStore);
+                update.Parameters.AddWithValue("@original_amount", originalAmount <= 0 ? currentAmount : originalAmount);
+                update.Parameters.AddWithValue("@is_settled", shouldSettle);
+                update.Parameters.AddWithValue("@settled_date", shouldSettle ? DateTime.Today : DBNull.Value);
+                update.Parameters.AddWithValue("@debt_id", debtId);
+                await update.ExecuteNonQueryAsync();
+
+                await transaction.CommitAsync();
+                return shouldSettle
+                    ? new OperationResult(true, "Datoria a fost stinsa complet.")
+                    : new OperationResult(true, $"Plata a fost aplicata. Restul ramas este {amountToStore:0.00} MDL.");
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, $"Eroare la aplicarea platii: {ex.Message}");
         }
     }
 
@@ -888,6 +1027,83 @@ public static class DatabaseService
         }
     }
 
+    public static async Task<OperationResult> ApplyUtilityPaymentAsync(int utilityId, decimal paymentAmount)
+    {
+        if (utilityId <= 0 || paymentAmount <= 0)
+        {
+            return new OperationResult(false, "Suma pentru plata este invalida.");
+        }
+
+        try
+        {
+            await EnsureSchemaAsync();
+
+            await using var connection = new MySqlConnection(DatabaseConnectionString);
+            await connection.OpenAsync();
+
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            try
+            {
+                await using var load = new MySqlCommand(
+                    @"SELECT amount, is_paid
+                      FROM utilities
+                      WHERE utility_id = @utility_id
+                      LIMIT 1;",
+                    connection,
+                    transaction);
+                load.Parameters.AddWithValue("@utility_id", utilityId);
+
+                await using var reader = await load.ExecuteReaderAsync();
+                if (!await reader.ReadAsync())
+                {
+                    return new OperationResult(false, "Plata comunala nu a fost gasita.");
+                }
+
+                var currentAmount = reader.GetDecimal("amount");
+                var isPaid = reader.GetBoolean("is_paid");
+                await reader.CloseAsync();
+
+                if (isPaid)
+                {
+                    return new OperationResult(false, "Plata comunala este deja achitata.");
+                }
+
+                var remainingAmount = currentAmount - paymentAmount;
+                var shouldClose = remainingAmount <= 0;
+                var amountToStore = shouldClose ? 0m : remainingAmount;
+
+                await using var update = new MySqlCommand(
+                    @"UPDATE utilities
+                      SET amount = @amount,
+                          is_paid = @is_paid,
+                          paid_date = @paid_date
+                      WHERE utility_id = @utility_id;",
+                    connection,
+                    transaction);
+                update.Parameters.AddWithValue("@amount", amountToStore);
+                update.Parameters.AddWithValue("@is_paid", shouldClose);
+                update.Parameters.AddWithValue("@paid_date", shouldClose ? DateTime.Today : DBNull.Value);
+                update.Parameters.AddWithValue("@utility_id", utilityId);
+                await update.ExecuteNonQueryAsync();
+
+                await transaction.CommitAsync();
+                return shouldClose
+                    ? new OperationResult(true, "Plata comunala a fost achitata complet.")
+                    : new OperationResult(true, $"Plata a fost aplicata. Restul ramas este {amountToStore:0.00} MDL.");
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+        }
+        catch (Exception ex)
+        {
+            return new OperationResult(false, $"Eroare la aplicarea platii: {ex.Message}");
+        }
+    }
+
     public static async Task<decimal> GetCurrentBudgetAsync(int userId)
     {
         if (userId <= 0)
@@ -967,44 +1183,70 @@ public static class DatabaseService
                 .Where(expense => expense.ExpenseDate >= monthStart && expense.ExpenseDate < nextMonthStart)
                 .ToList();
 
-            var totalDebts = debts
+            var currentMonthUtilities = utilities
+                .Where(utility => utility.UtilityDate >= monthStart && utility.UtilityDate < nextMonthStart)
+                .ToList();
+
+            var totalPayableDebts = debts
                 .Where(debt => debt.DebtType == "eu_datorez")
                 .Sum(debt => debt.Amount);
 
+            var totalReceivableDebts = debts
+                .Where(debt => debt.DebtType == "mie_datoreaza")
+                .Sum(debt => debt.Amount);
+
             var upcomingObligations = debts
-                .Where(debt => debt.DebtType == "eu_datorez")
+                .Where(debt => debt.DueDate >= today)
                 .Select(debt => new DashboardObligation(
                     debt.PersonName,
-                    "Datorie personala",
+                    debt.DebtType == "eu_datorez" ? "Datorie de achitat" : "Suma de recuperat",
                     debt.Amount,
                     debt.DueDate))
                 .Concat(utilities.Select(utility => new DashboardObligation(
-                    utility.UtilityName,
-                    "Servicii comunale",
+                    CapitalizeUtilityName(utility.UtilityName),
+                    "Serviciu comunal de achitat",
                     utility.Amount,
                     utility.UtilityDate)))
                 .OrderBy(item => item.DueDate)
-                .Take(2)
+                .Take(4)
                 .ToList();
 
             var categoryTotals = currentMonthExpenses
                 .GroupBy(expense => expense.CategoryName)
                 .Select(group => new DashboardCategoryTotal(group.Key, group.Sum(item => item.Amount)))
+                .Concat(currentMonthUtilities.Count == 0
+                    ? Enumerable.Empty<DashboardCategoryTotal>()
+                    : new[]
+                    {
+                        new DashboardCategoryTotal(
+                            "Servicii comunale",
+                            currentMonthUtilities.Sum(item => item.Amount))
+                    })
                 .OrderByDescending(item => item.Amount)
-                .Take(3)
                 .ToList();
 
             return new DashboardData(
                 budget,
-                totalDebts,
-                currentMonthExpenses.Sum(expense => expense.Amount),
+                totalPayableDebts,
+                totalReceivableDebts,
+                currentMonthExpenses.Sum(expense => expense.Amount) + currentMonthUtilities.Sum(utility => utility.Amount),
                 upcomingObligations,
                 categoryTotals);
         }
         catch
         {
-            return new DashboardData(0m, 0m, 0m, new List<DashboardObligation>(), new List<DashboardCategoryTotal>());
+            return new DashboardData(0m, 0m, 0m, 0m, new List<DashboardObligation>(), new List<DashboardCategoryTotal>());
         }
+    }
+
+    private static string CapitalizeUtilityName(string utilityName)
+    {
+        if (string.IsNullOrWhiteSpace(utilityName))
+        {
+            return "Serviciu";
+        }
+
+        return char.ToUpperInvariant(utilityName[0]) + utilityName[1..].ToLowerInvariant();
     }
 
     public static async Task<OperationResult> UpdateUserRoleAsync(int userId, string role)
@@ -1209,6 +1451,7 @@ public static class DatabaseService
                         person_name VARCHAR(100) NOT NULL,
                         debt_type ENUM('eu_datorez', 'mie_datoreaza') NOT NULL,
                         amount DECIMAL(10,2) NOT NULL,
+                        original_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
                         is_settled TINYINT(1) NOT NULL DEFAULT 0,
                         settled_date DATE NULL,
                         due_date DATE NOT NULL,
@@ -1299,10 +1542,17 @@ public static class DatabaseService
 
     private static async Task EnsureDebtsStatusColumnsAsync(MySqlConnection connection)
     {
+        await EnsureColumnAsync(connection, "debts", "original_amount",
+            "ALTER TABLE debts ADD COLUMN original_amount DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER amount;");
         await EnsureColumnAsync(connection, "debts", "is_settled",
-            "ALTER TABLE debts ADD COLUMN is_settled TINYINT(1) NOT NULL DEFAULT 0 AFTER amount;");
+            "ALTER TABLE debts ADD COLUMN is_settled TINYINT(1) NOT NULL DEFAULT 0 AFTER original_amount;");
         await EnsureColumnAsync(connection, "debts", "settled_date",
             "ALTER TABLE debts ADD COLUMN settled_date DATE NULL AFTER is_settled;");
+
+        await using var backfillOriginalAmount = new MySqlCommand(
+            "UPDATE debts SET original_amount = amount WHERE original_amount <= 0;",
+            connection);
+        await backfillOriginalAmount.ExecuteNonQueryAsync();
     }
 
     private static async Task EnsureUtilitiesStatusColumnsAsync(MySqlConnection connection)

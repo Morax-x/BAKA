@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.Linq;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using BugalterProject.Data;
@@ -25,16 +26,17 @@ namespace BugalterProject.pagini
             var data = await DatabaseService.GetDashboardDataAsync(user.UserId);
 
             BudgetValueText.Text = $"{data.CurrentBudget:0.00} MDL";
-            DebtsValueText.Text = $"{data.TotalDebts:0.00} MDL";
+            PayableDebtsValueText.Text = $"{data.TotalPayableDebts:0.00} MDL";
+            ReceivableDebtsValueText.Text = $"{data.TotalReceivableDebts:0.00} MDL";
             MonthlyExpensesText.Text = $"{data.CurrentMonthExpenses:0.00} MDL";
             BudgetInputBox.Text = data.CurrentBudget.ToString("0.##", CultureInfo.InvariantCulture);
 
             ApplyObligationCard(1, data.UpcomingObligations.Count > 0 ? data.UpcomingObligations[0] : null);
             ApplyObligationCard(2, data.UpcomingObligations.Count > 1 ? data.UpcomingObligations[1] : null);
+            ApplyObligationCard(3, data.UpcomingObligations.Count > 2 ? data.UpcomingObligations[2] : null);
+            ApplyObligationCard(4, data.UpcomingObligations.Count > 3 ? data.UpcomingObligations[3] : null);
 
-            ApplyCategoryCard(1, data.CategoryTotals.Count > 0 ? data.CategoryTotals[0] : null);
-            ApplyCategoryCard(2, data.CategoryTotals.Count > 1 ? data.CategoryTotals[1] : null);
-            ApplyCategoryCard(3, data.CategoryTotals.Count > 2 ? data.CategoryTotals[2] : null);
+            CategoriesSummaryText.Text = FormatCategoryTotals(data.CategoryTotals);
         }
 
         private void ApplyObligationCard(int index, DashboardObligation? obligation)
@@ -58,29 +60,31 @@ namespace BugalterProject.pagini
                     ObligationAmount2.Text = amount;
                     ObligationDate2.Text = date;
                     break;
+                case 3:
+                    ObligationTitle3.Text = title;
+                    ObligationSubtitle3.Text = subtitle;
+                    ObligationAmount3.Text = amount;
+                    ObligationDate3.Text = date;
+                    break;
+                case 4:
+                    ObligationTitle4.Text = title;
+                    ObligationSubtitle4.Text = subtitle;
+                    ObligationAmount4.Text = amount;
+                    ObligationDate4.Text = date;
+                    break;
             }
         }
 
-        private void ApplyCategoryCard(int index, DashboardCategoryTotal? category)
+        private static string FormatCategoryTotals(System.Collections.Generic.IReadOnlyList<DashboardCategoryTotal> categories)
         {
-            var categoryName = category?.CategoryName ?? "Nu exista date";
-            var amount = category is null ? "0.00 MDL" : $"{category.Amount:0.00} MDL";
-
-            switch (index)
+            if (categories.Count == 0)
             {
-                case 1:
-                    CategoryName1.Text = categoryName;
-                    CategoryAmount1.Text = amount;
-                    break;
-                case 2:
-                    CategoryName2.Text = categoryName;
-                    CategoryAmount2.Text = amount;
-                    break;
-                case 3:
-                    CategoryName3.Text = categoryName;
-                    CategoryAmount3.Text = amount;
-                    break;
+                return "Nu exista cheltuieli inregistrate pentru luna curenta.";
             }
+
+            return string.Join(
+                Environment.NewLine,
+                categories.Select(category => $"{category.CategoryName} - {category.Amount:0.00} MDL"));
         }
 
         private async void SaveBudget(object? sender, RoutedEventArgs e)

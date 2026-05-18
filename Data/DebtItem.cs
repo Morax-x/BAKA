@@ -9,6 +9,7 @@ public sealed record DebtItem(
     string PersonName,
     string DebtType,
     decimal Amount,
+    decimal OriginalAmount,
     DateTime DueDate,
     bool IsSettled,
     DateTime? SettledDate)

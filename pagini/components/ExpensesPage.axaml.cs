@@ -11,6 +11,8 @@ namespace BugalterProject.pagini.components
     public partial class ExpensesPage : UserControl
     {
         private readonly bool _isAdmin;
+        private readonly List<string> _expenseViews = new();
+        private List<ExpenseItem> _expenses = new();
         private List<ExpenseCategory> _categories = new();
         private List<AppUser> _users = new();
         private ExpenseItem? _selectedExpense;
@@ -27,6 +29,7 @@ namespace BugalterProject.pagini.components
         {
             await LoadCategoriesAsync();
             await LoadUsersAsync();
+            LoadExpenseViews();
             await LoadExpensesAsync();
 
             if (ExpenseDatePicker.SelectedDate is null)
@@ -37,11 +40,28 @@ namespace BugalterProject.pagini.components
 
         private async System.Threading.Tasks.Task LoadCategoriesAsync()
         {
-            _categories = await DatabaseService.GetExpenseCategoriesAsync();
+            _categories = (await DatabaseService.GetExpenseCategoriesAsync())
+                .Where(category => !string.Equals(category.CategoryName, "Servicii comunale", StringComparison.OrdinalIgnoreCase))
+                .OrderBy(category => category.CategoryName)
+                .ToList();
+
             CategoryCombo.ItemsSource = _categories;
             if (_categories.Count > 0 && CategoryCombo.SelectedItem is null)
             {
                 CategoryCombo.SelectedItem = _categories[0];
+            }
+        }
+
+        private void LoadExpenseViews()
+        {
+            _expenseViews.Clear();
+            _expenseViews.Add("Toate cheltuielile");
+            _expenseViews.AddRange(_categories.Select(category => category.CategoryName));
+            ExpenseViewCombo.ItemsSource = _expenseViews;
+
+            if (ExpenseViewCombo.SelectedItem is null && _expenseViews.Count > 0)
+            {
+                ExpenseViewCombo.SelectedItem = _expenseViews[0];
             }
         }
 
@@ -67,20 +87,45 @@ namespace BugalterProject.pagini.components
         private async System.Threading.Tasks.Task LoadExpensesAsync()
         {
             var userId = _isAdmin ? null : AppSession.CurrentUser?.UserId;
-            var expenses = await DatabaseService.GetExpensesAsync(userId);
-            ExpensesList.ItemsSource = expenses;
-            ExpensesCountText.Text = $"Cheltuieli gasite: {expenses.Count}";
+            _expenses = await DatabaseService.GetExpensesAsync(userId);
+            ApplyExpenseFilter();
 
             if (_selectedExpense is not null)
             {
-                ExpensesList.SelectedItem = expenses.FirstOrDefault(expense => expense.ExpenseId == _selectedExpense.ExpenseId);
+                ExpensesList.SelectedItem = _expenses.FirstOrDefault(expense => expense.ExpenseId == _selectedExpense.ExpenseId);
             }
+        }
+
+        private void ApplyExpenseFilter()
+        {
+            var selectedView = ExpenseViewCombo.SelectedItem as string;
+            var filteredExpenses = GetFilteredExpenses(selectedView);
+            ExpensesList.ItemsSource = filteredExpenses;
+            ExpensesCountText.Text = $"Cheltuieli gasite: {filteredExpenses.Count}";
+        }
+
+        private List<ExpenseItem> GetFilteredExpenses(string? selectedView)
+        {
+            if (string.IsNullOrWhiteSpace(selectedView) ||
+                string.Equals(selectedView, "Toate cheltuielile", StringComparison.OrdinalIgnoreCase))
+            {
+                return _expenses;
+            }
+
+            return _expenses
+                .Where(expense => string.Equals(expense.CategoryName, selectedView, StringComparison.OrdinalIgnoreCase))
+                .ToList();
         }
 
         private void ExpensesList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             _selectedExpense = ExpensesList.SelectedItem as ExpenseItem;
             FillFormFromSelectedExpense();
+        }
+
+        private void ExpenseViewCombo_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        {
+            ApplyExpenseFilter();
         }
 
         private void FillFormFromSelectedExpense()
@@ -104,7 +149,7 @@ namespace BugalterProject.pagini.components
             StatusText.Text = $"Cheltuiala selectata: {_selectedExpense.CategoryName}";
         }
 
-        private async void AddExpense(object? sender, RoutedEventArgs e)
+        private async void SaveExpense(object? sender, RoutedEventArgs e)
         {
             var userId = GetTargetUserId();
             var category = CategoryCombo.SelectedItem as ExpenseCategory;
@@ -117,45 +162,32 @@ namespace BugalterProject.pagini.components
                 return;
             }
 
-            var result = await DatabaseService.AddExpenseAsync(userId.Value, category.CategoryId, amount.Value, DescriptionBox.Text ?? string.Empty, date);
+            OperationResult result;
+
+            if (_selectedExpense is null)
+            {
+                result = await DatabaseService.AddExpenseAsync(
+                    userId.Value,
+                    category.CategoryId,
+                    amount.Value,
+                    DescriptionBox.Text ?? string.Empty,
+                    date);
+            }
+            else
+            {
+                result = await DatabaseService.UpdateExpenseAsync(
+                    _selectedExpense.ExpenseId,
+                    category.CategoryId,
+                    amount.Value,
+                    DescriptionBox.Text ?? string.Empty,
+                    date);
+            }
+
             StatusText.Text = result.Message;
 
             if (result.Success)
             {
                 ClearForm(false);
-                await LoadExpensesAsync();
-            }
-        }
-
-        private async void UpdateExpense(object? sender, RoutedEventArgs e)
-        {
-            if (_selectedExpense is null)
-            {
-                StatusText.Text = "Selecteaza o cheltuiala inainte de actualizare.";
-                return;
-            }
-
-            var category = CategoryCombo.SelectedItem as ExpenseCategory;
-            var amount = ReadAmount();
-            var date = ExpenseDatePicker.SelectedDate?.DateTime.Date ?? DateTime.Today;
-
-            if (category is null || amount is null)
-            {
-                StatusText.Text = "Completeaza categoria si suma corect.";
-                return;
-            }
-
-            var result = await DatabaseService.UpdateExpenseAsync(
-                _selectedExpense.ExpenseId,
-                category.CategoryId,
-                amount.Value,
-                DescriptionBox.Text ?? string.Empty,
-                date);
-
-            StatusText.Text = result.Message;
-
-            if (result.Success)
-            {
                 await LoadExpensesAsync();
             }
         }
@@ -205,7 +237,7 @@ namespace BugalterProject.pagini.components
 
             if (showStatus)
             {
-                StatusText.Text = "Formular golit.";
+                StatusText.Text = "Formular pregatit pentru o cheltuiala noua.";
             }
         }
 
