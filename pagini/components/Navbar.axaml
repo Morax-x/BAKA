@@ -4,38 +4,63 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              mc:Ignorable="d"
              d:DesignWidth="1280"
-             d:DesignHeight="88"
+             d:DesignHeight="102"
              x:Class="BugalterProject.pagini.components.Navbar">
 
-    <Border Margin="14,14,14,10"
-            Padding="16,12"
-            Background="#2A2A2A"
-            BorderBrush="#505050"
+    <Border Margin="14,14,14,12"
+            Padding="18,16"
+            Background="#1C2431"
+            BorderBrush="{StaticResource PanelBorderBrush}"
             BorderThickness="1"
-            CornerRadius="8">
+            CornerRadius="18">
         <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="24">
-            <StackPanel Grid.Column="0" Spacing="2" VerticalAlignment="Center">
-                <TextBlock Text="BAKA" FontSize="24" FontWeight="Bold" Foreground="White"/>
-                <TextBlock Text="Bani Asistent si Kontrol Activetati" FontSize="12" Foreground="#CFCFCF"/>
-            </StackPanel>
+            <Grid Grid.Column="0" ColumnDefinitions="Auto,*" ColumnSpacing="14" VerticalAlignment="Center">
+                <Border Width="52"
+                        Height="52"
+                        CornerRadius="16"
+                        Background="#D9A441"
+                        VerticalAlignment="Center">
+                    <TextBlock HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Text="B"
+                               FontSize="28"
+                               FontWeight="Bold"
+                               Foreground="#1E2330"/>
+                </Border>
 
-            <StackPanel Grid.Column="1"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Spacing="10">
-                <Button Content="Main" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDashboard"/>
-                <Button Content="Cheltuieli" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenExpenses"/>
-                <Button Content="Datorii" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenDebts"/>
-                <Button Content="Servicii com." Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenUtilities"/>
-                <Button Content="Istoricul" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenHistory"/>
-                <Button x:Name="AdminButton" Content="Administrare" Padding="18,10" Background="#3A3A3A" Foreground="White" Click="OpenAdmin" IsVisible="False"/>
-            </StackPanel>
+                <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
+                    <TextBlock Text="BAKA" FontSize="28" FontWeight="Bold" Foreground="{StaticResource TextPrimaryBrush}"/>
+                    <TextBlock Text="Bani Asistent si Kontrol Activetati"
+                               FontSize="12"
+                               Foreground="{StaticResource TextMutedBrush}"/>
+                </StackPanel>
+            </Grid>
+
+            <Border Grid.Column="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="#242D3C"
+                    BorderBrush="{StaticResource PanelBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="999"
+                    Padding="8">
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Spacing="8">
+                    <Button Content="Main" Padding="18,10" Background="#2F394A" Foreground="White" Click="OpenDashboard"/>
+                    <Button Content="Cheltuieli" Padding="18,10" Background="#2F394A" Foreground="White" Click="OpenExpenses"/>
+                    <Button Content="Datorii" Padding="18,10" Background="#2F394A" Foreground="White" Click="OpenDebts"/>
+                    <Button Content="Servicii com." Padding="18,10" Background="#2F394A" Foreground="White" Click="OpenUtilities"/>
+                    <Button Content="Istoricul" Padding="18,10" Background="#2F394A" Foreground="White" Click="OpenHistory"/>
+                    <Button x:Name="AdminButton" Content="Administrare" Padding="18,10" Background="#5E4624" Foreground="White" Click="OpenAdmin" IsVisible="False"/>
+                </StackPanel>
+            </Border>
 
             <Button Grid.Column="2"
                     Content="Cont"
-                    Padding="18,10"
-                    Background="#3A3A3A"
+                    Padding="20,10"
+                    Background="#2F394A"
                     Foreground="White"
                     VerticalAlignment="Center"
                     Click="OpenAccount"/>

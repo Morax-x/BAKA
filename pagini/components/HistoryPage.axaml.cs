@@ -55,7 +55,7 @@ namespace BugalterProject.pagini.components
 
             var settledDebts = _debts.Where(item => item.IsSettled).OrderByDescending(item => item.SettledDate ?? item.DueDate).ToList();
             var paidUtilities = _utilities.Where(item => item.IsPaid).OrderByDescending(item => item.PaidDate ?? item.UtilityDate).ToList();
-            var totalPaidUtilities = paidUtilities.Sum(item => item.Amount);
+            var totalPaidUtilities = paidUtilities.Sum(item => item.OriginalAmount);
 
             SettledDebtsCountText.Text = settledDebts.Count.ToString(CultureInfo.InvariantCulture);
             PaidUtilitiesCountText.Text = paidUtilities.Count.ToString(CultureInfo.InvariantCulture);
@@ -111,7 +111,7 @@ namespace BugalterProject.pagini.components
                 utilities.Select(utility =>
                 {
                     var paidDate = utility.PaidDate ?? utility.UtilityDate;
-                    return $"{paidDate:dd.MM.yyyy} | {utility.UtilityName} | {utility.Amount:0.00} MDL | {utility.OwnerName}";
+                    return $"{paidDate:dd.MM.yyyy} | {CapitalizeFirst(utility.UtilityName)} | {utility.OriginalAmount:0.00} MDL | {utility.OwnerName}";
                 }));
         }
 
@@ -168,8 +168,8 @@ namespace BugalterProject.pagini.components
                         "Utility",
                         utility.UtilityId,
                         EscapeCsv(utility.OwnerName),
-                        EscapeCsv(utility.UtilityName),
-                        utility.Amount.ToString("0.00", CultureInfo.InvariantCulture),
+                        EscapeCsv(CapitalizeFirst(utility.UtilityName)),
+                        utility.OriginalAmount.ToString("0.00", CultureInfo.InvariantCulture),
                         EscapeCsv(utility.IsPaid ? "Achitata" : "Activa"),
                         utility.UtilityDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture),
                         utility.PaidDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? string.Empty));
@@ -220,6 +220,16 @@ namespace BugalterProject.pagini.components
             }
 
             return $" | {description.Trim()}";
+        }
+
+        private static string CapitalizeFirst(string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return string.Empty;
+            }
+
+            return char.ToUpperInvariant(value[0]) + value[1..].ToLowerInvariant();
         }
     }
 }

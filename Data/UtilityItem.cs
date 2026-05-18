@@ -8,6 +8,7 @@ public sealed record UtilityItem(
     string OwnerName,
     string UtilityName,
     decimal Amount,
+    decimal OriginalAmount,
     DateTime UtilityDate,
     bool IsPaid,
     DateTime? PaidDate)

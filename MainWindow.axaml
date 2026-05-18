@@ -10,25 +10,45 @@
         Height="820"
         MinWidth="1080"
         MinHeight="720"
-        Background="#1E1E1E"
         x:Class="BugalterProject.MainWindow"
-        Title="Bani Asistent si Kontrol Activetati ( BAKA )">
+        Title="Bani Asistent si Kontrol Activetati (BAKA)">
 
-    <Grid RowDefinitions="Auto,*,Auto" Background="#1E1E1E">
+    <Window.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#11161F" Offset="0"/>
+            <GradientStop Color="#1A2230" Offset="0.45"/>
+            <GradientStop Color="#121A24" Offset="1"/>
+        </LinearGradientBrush>
+    </Window.Background>
+
+    <Grid RowDefinitions="Auto,*,Auto">
         <components:Navbar x:Name="TopNavbar" Grid.Row="0"/>
         <ContentControl x:Name="MainContent" Grid.Row="1"/>
 
         <Border Grid.Row="2"
                 Margin="14,0,14,14"
-                Padding="12"
-                Background="#2A2A2A"
-                BorderBrush="#505050"
+                Padding="14,12"
+                Background="#1A2030"
+                BorderBrush="{StaticResource PanelBorderBrush}"
                 BorderThickness="1"
-                CornerRadius="8">
-            <TextBlock HorizontalAlignment="Center"
-                       Text="Informatii despre proprietarul site-ului si anul curent (ex: © 2026 BAKA)."
-                       FontSize="14"
-                       Foreground="#F0F0F0"/>
+                CornerRadius="14">
+            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                <Border Width="12"
+                        Height="12"
+                        CornerRadius="999"
+                        Background="{StaticResource AccentBrush}"
+                        VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           HorizontalAlignment="Center"
+                           Text="BAKA organizeaza cheltuielile, datoriile si serviciile comunale intr-un singur spatiu clar."
+                           FontSize="13"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+                <TextBlock Grid.Column="2"
+                           Text="© 2026 BAKA"
+                           VerticalAlignment="Center"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+            </Grid>
         </Border>
     </Grid>
 </Window>

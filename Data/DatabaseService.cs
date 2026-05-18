@@ -825,6 +825,7 @@ public static class DatabaseService
                            CONCAT(u.first_name, ' ', u.last_name) AS owner_name,
                            ut.utility_name,
                            ut.amount,
+                           ut.original_amount,
                            ut.utility_date,
                            ut.is_paid,
                            ut.paid_date
@@ -838,6 +839,7 @@ public static class DatabaseService
                            CONCAT(u.first_name, ' ', u.last_name) AS owner_name,
                            ut.utility_name,
                            ut.amount,
+                           ut.original_amount,
                            ut.utility_date,
                            ut.is_paid,
                            ut.paid_date
@@ -862,6 +864,7 @@ public static class DatabaseService
                     reader.GetString("owner_name"),
                     reader.GetString("utility_name"),
                     reader.GetDecimal("amount"),
+                    reader.GetDecimal("original_amount"),
                     reader.GetDateTime("utility_date"),
                     reader.GetBoolean("is_paid"),
                     reader.IsDBNull(reader.GetOrdinal("paid_date")) ? null : reader.GetDateTime("paid_date")));
@@ -894,13 +897,14 @@ public static class DatabaseService
             await connection.OpenAsync();
 
             await using var command = new MySqlCommand(
-                @"INSERT INTO utilities (user_id, utility_name, amount, utility_date, is_paid, paid_date)
-                  VALUES (@user_id, @utility_name, @amount, @utility_date, 0, NULL);",
+                @"INSERT INTO utilities (user_id, utility_name, amount, original_amount, utility_date, is_paid, paid_date)
+                  VALUES (@user_id, @utility_name, @amount, @original_amount, @utility_date, 0, NULL);",
                 connection);
 
             command.Parameters.AddWithValue("@user_id", userId);
             command.Parameters.AddWithValue("@utility_name", utilityName.ToLowerInvariant());
             command.Parameters.AddWithValue("@amount", amount);
+            command.Parameters.AddWithValue("@original_amount", amount);
             command.Parameters.AddWithValue("@utility_date", utilityDate.Date);
 
             await command.ExecuteNonQueryAsync();
@@ -934,6 +938,7 @@ public static class DatabaseService
                 @"UPDATE utilities
                   SET utility_name = @utility_name,
                       amount = @amount,
+                      original_amount = @original_amount,
                       utility_date = @utility_date
                   WHERE utility_id = @utility_id;",
                 connection);
@@ -941,6 +946,7 @@ public static class DatabaseService
             command.Parameters.AddWithValue("@utility_id", utilityId);
             command.Parameters.AddWithValue("@utility_name", utilityName.ToLowerInvariant());
             command.Parameters.AddWithValue("@amount", amount);
+            command.Parameters.AddWithValue("@original_amount", amount);
             command.Parameters.AddWithValue("@utility_date", utilityDate.Date);
 
             var affectedRows = await command.ExecuteNonQueryAsync();
@@ -1046,7 +1052,7 @@ public static class DatabaseService
             try
             {
                 await using var load = new MySqlCommand(
-                    @"SELECT amount, is_paid
+                    @"SELECT amount, original_amount, is_paid
                       FROM utilities
                       WHERE utility_id = @utility_id
                       LIMIT 1;",
@@ -1061,6 +1067,7 @@ public static class DatabaseService
                 }
 
                 var currentAmount = reader.GetDecimal("amount");
+                var originalAmount = reader.GetDecimal("original_amount");
                 var isPaid = reader.GetBoolean("is_paid");
                 await reader.CloseAsync();
 
@@ -1076,12 +1083,14 @@ public static class DatabaseService
                 await using var update = new MySqlCommand(
                     @"UPDATE utilities
                       SET amount = @amount,
+                          original_amount = @original_amount,
                           is_paid = @is_paid,
                           paid_date = @paid_date
                       WHERE utility_id = @utility_id;",
                     connection,
                     transaction);
                 update.Parameters.AddWithValue("@amount", amountToStore);
+                update.Parameters.AddWithValue("@original_amount", originalAmount <= 0 ? currentAmount : originalAmount);
                 update.Parameters.AddWithValue("@is_paid", shouldClose);
                 update.Parameters.AddWithValue("@paid_date", shouldClose ? DateTime.Today : DBNull.Value);
                 update.Parameters.AddWithValue("@utility_id", utilityId);
@@ -1462,6 +1471,7 @@ public static class DatabaseService
                         user_id INT NOT NULL,
                         utility_name ENUM('apa', 'lumina', 'gaz', 'internet') NOT NULL,
                         amount DECIMAL(10,2) NOT NULL,
+                        original_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
                         is_paid TINYINT(1) NOT NULL DEFAULT 0,
                         paid_date DATE NULL,
                         utility_date DATE NOT NULL,
@@ -1557,10 +1567,17 @@ public static class DatabaseService
 
     private static async Task EnsureUtilitiesStatusColumnsAsync(MySqlConnection connection)
     {
+        await EnsureColumnAsync(connection, "utilities", "original_amount",
+            "ALTER TABLE utilities ADD COLUMN original_amount DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER amount;");
         await EnsureColumnAsync(connection, "utilities", "is_paid",
-            "ALTER TABLE utilities ADD COLUMN is_paid TINYINT(1) NOT NULL DEFAULT 0 AFTER amount;");
+            "ALTER TABLE utilities ADD COLUMN is_paid TINYINT(1) NOT NULL DEFAULT 0 AFTER original_amount;");
         await EnsureColumnAsync(connection, "utilities", "paid_date",
             "ALTER TABLE utilities ADD COLUMN paid_date DATE NULL AFTER is_paid;");
+
+        await using var backfillOriginalAmount = new MySqlCommand(
+            "UPDATE utilities SET original_amount = amount WHERE original_amount <= 0;",
+            connection);
+        await backfillOriginalAmount.ExecuteNonQueryAsync();
     }
 
     private static async Task EnsureColumnAsync(MySqlConnection connection, string tableName, string columnName, string alterSql)
